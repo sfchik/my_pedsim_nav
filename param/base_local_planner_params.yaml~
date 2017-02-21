@@ -1,0 +1,7 @@
+TrajectoryPlannerROS:
+  dwa: true
+  meter_scoring: true
+  min_vel_x: 0.1
+  max_vel_x: 1.0
+  xy_goal_tolerance: 0.25
+  yaw_goal_tolerance: 0.1

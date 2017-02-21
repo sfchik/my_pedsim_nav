@@ -1,0 +1,84 @@
+<launch>
+    <arg name="scene" default="lobby"/>
+    <arg name="reset_params" default="false"/>
+    <arg name="goal_type" default="simple_pedsim_goals"/>
+
+    <arg name="pose_initial_x"/>
+    <arg name="pose_initial_y"/>
+    <arg name="pose_initial_theta"/>
+
+    <arg name="goal_x"/>
+    <arg name="goal_y"/>
+    <arg name="goal_yaw"/> 
+
+    <arg name="s_x_extra"/>       
+
+    <!-- Behavior parameters -->
+    <rosparam command="load" file="$(find my_pedsim_nav)/config/behavior_parameters/$(arg scene).yaml" />
+
+    <!-- run move base -->
+    <node pkg="move_base" type="move_base" name="move_base_node" output="screen">
+        <!--  -->
+        <remap from="/cmd_vel" to="pedbot/control/cmd_vel"/>
+        <remap from="/odom" to="/robot_position/corrected"/>
+		<!-- <remap from="/odom" to="/pedsim/robot_position"/> -->
+
+        <rosparam file="$(find my_pedsim_nav)/config/my_move_base_parameters/common.yaml" command="load" ns="global_costmap" />
+        <rosparam file="$(find my_pedsim_nav)/config/my_move_base_parameters/common.yaml" command="load" ns="local_costmap" />
+        <rosparam file="$(find my_pedsim_nav)/config/my_move_base_parameters/$(arg scene)/global.yaml" command="load" ns="global_costmap" />
+        <rosparam file="$(find my_pedsim_nav)/config/my_move_base_parameters/$(arg scene)/local.yaml" command="load" ns="local_costmap" />
+
+        <!-- global planner -->
+        <rosparam file="$(find my_pedsim_nav)/config/my_move_base_parameters/move_base.yaml" command="load" />
+        <param name="base_global_planner" value="navfn/NavfnROS"/>
+
+		<!--## <param name="base_global_planner" value="global_planner/GlobalPlanner"/> ##-->
+        <rosparam file="$(find my_pedsim_nav)/config/my_move_base_parameters/global_planner_params.yaml" command="load" />
+
+        <!-- local planner -->
+
+ 		<!-- timed elastic band -->
+		<!-- <param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />
+		<param name="controller_frequency" value="10.0" />
+		<rosparam file="$(find my_pedsim_nav)/config/my_move_base_parameters/teb_local_planner_params.yaml" command="load" /> --> 
+
+		<!-- eband -->
+		<param name="base_local_planner" value="eband_local_planner/EBandPlannerROS"/>
+		<rosparam file="$(find my_pedsim_nav)/config/my_move_base_parameters/eband_local_planner_params.yaml" command="load" />
+
+		<!-- DWAPlanner
+		<param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/>
+		<rosparam file="$(find my_pedsim_nav)/config/my_move_base_parameters/dwa_local_planner_params.yaml" command="load" /> -->
+
+		<!-- TrajectoryPlannerROS
+		<param name="base_local_planner" value="base_local_planner/TrajectoryPlannerROS"/>
+    	<rosparam file="$(find my_pedsim_nav)/config/my_move_base_parameters/base_local_planner_params.yaml" command="load" /> --> 
+
+		<!-- SrlEBandPlannerROS -->
+		<!-- <param name="base_local_planner" value="srl_eband_local_planner/SrlEBandPlannerROS"/>
+        <rosparam file="$(find my_pedsim_nav)/config/my_move_base_parameters/srl_eband_params.yaml" command="load" ns="SrlEBandPlannerROS"/>  -->
+
+    </node>
+    <!--    -->   
+	<node name="simple_pedsim_goals" pkg="simple_navigation_goals" type="$(arg goal_type)" output="screen"> 
+        <param name="/goal_x" value="$(arg goal_x)" type="double"/>
+        <param name="/goal_y" value="$(arg goal_y)" type="double"/>  
+        <param name="/goal_yaw" value="$(arg goal_yaw)" type="double"/>
+        <param name="init_x" value="$(arg pose_initial_x)" type="double"/>
+        <param name="init_y" value="$(arg pose_initial_y)" type="double"/>
+        <param name="init_yaw" value="$(arg pose_initial_theta)" type="double"/>  
+        <param name="alternate" value="false" type="bool"/>  
+    </node> 
+
+    <include file="$(find exp_examine_path)/launch/examine_path.launch">
+        <arg name="robot_init_x" default="$(arg pose_initial_x)"/>
+        <arg name="robot_init_y" default="$(arg pose_initial_y)"/>
+        <arg name="robot_init_yaw" default="$(arg pose_initial_theta)"/>
+        <arg name="robot_goal_x" default="$(arg goal_x)"/>
+        <arg name="robot_goal_y" default="$(arg goal_y)"/>
+        <arg name="robot_goal_yaw" default="$(arg goal_yaw)"/>        
+        <arg name="start_x_extra" default="$(arg s_x_extra)"/>        
+    </include>  
+
+    <include file="$(find rl_theta_correction)/launch/rl_theta_correction.launch" />          
+</launch>

@@ -1,0 +1,9 @@
+EBandPlannerROS:
+
+ differential_drive: true
+ max_vel_lin: 1.5
+ xy_goal_tolerance: 0.1   #default 0.10m
+ yaw_goal_tolerance: 0.05 #default 0.05rad 
+ bubble_velocity_multiplier: 2.0
+# eband_internal_force_gain: 2.0
+# eband_external_force_gain: 1.0

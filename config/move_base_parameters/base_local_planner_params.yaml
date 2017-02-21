@@ -1,0 +1,14 @@
+TrajectoryPlannerROS:
+  dwa: true
+  meter_scoring: true
+  max_vel_x: 0.7
+  min_vel_x: 0.4
+  xy_goal_tolerance: 0.25   #default 0.10m
+  yaw_goal_tolerance: 0.1 #default 0.05rad
+  holonomic_robot: false
+  sim_time: 1.0
+  pdist_scale: 0.6 #default 0.6
+  gdist_scale: 0.8 #default 0.8
+  occdist_scale: 0.01 #default 0.01
+#  occdist_scale: 0.9
+
